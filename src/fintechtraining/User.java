@@ -1,60 +1,46 @@
 package fintechtraining;
 
-import java.util.Map;
-
-
 public class User {
     private String name;
-    private String phoneNumber;
-    private String pin;
-    private Wallet wallet;
-    
-    public User(String name, String phoneNumber, String pin, double initialBalance) {
+    private String phone;
+    private Wallet wallet; // EVERY USER HAS A WALLET
+
+    // Constructor - when you create a User, auto-create their Wallet
+    public User(String name, String phone, double initialBalance) {
         this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.pin = pin;        
-        this.wallet = new Wallet(initialBalance);
+        this.phone = phone;
+        this.wallet = new Wallet(initialBalance); // <-- THE LINK
     }
-    
-    
-    public String getPhoneNumber(){ 
-        return phoneNumber;
-    }
-    
-    public String getName(){
+
+    public String getName() {
         return name;
     }
-      
-    public Wallet getWallet(){
-        return wallet; 
+
+    public String getPhone() {
+        return phone;
     }
-    
-  
-    public void sendMoney(String toPhone, double amount, String inputPin, Map<String, User> users) throws Exception {
-        if (!this.pin.equals(inputPin)) {
-            System.out.println("FAILED: Wrong PIN for " + getName());
-            return;
-        }
-        User receiver = users.get(toPhone);
-        if(receiver == null){
-            System.out.println("FAILED: Receiver not found ");
-            return;
-        }
-        try {
-             this.wallet.withdraw(amount); 
-             receiver.getWallet().deposit(amount);
-             System.out.println(this.name + " sent $ " + amount + " to " + receiver.getName());
-        }catch (InsufficientFundsException e){
-             System.out.println("FAILED: " + e.getMessage() + " for " + getName());
-            
-        }
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    // Shortcut: you can do user.deposit(50) instead of user.getWallet().deposit(50)
+    public void deposit(double amount) {
+        wallet.deposit(amount);
+    }
+
+    public void withdraw(double amount) throws InsufficientFundsException {
+        wallet.withdraw(amount);
+    }
+
+    // THE BIG ONE: User to User transfer
+    public void sendMoney(User receiver, double amount) throws InsufficientFundsException {
+        System.out.println(this.name + " is sending $" + amount + " to " + receiver.getName());
+        this.wallet.transferTo(receiver.getWallet(), amount);
+    }
+
+    public void printStatement() {
+        System.out.println("\n=== Statement for " + name + " (" + phone + ") ===");
+        wallet.printStatement();
     }
 }
-        
-    
-
-    
- 
-
-
-
